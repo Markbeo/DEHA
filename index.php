@@ -11,13 +11,13 @@ if (!isset($_SESSION['user'])) {
 // Cấu hình số bản ghi trên mỗi trang
 $limit = 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$search = isset($_GET['search']) ? trim($_GET['search']) : "";
 $offset = ($page - 1) * $limit;
 
-// Lấy danh sách user có phân trang
-$users = User::all($limit, $offset);
-$totalUsers = User::count();
+// Lấy danh sách user có phân trang và tìm kiếm
+$totalUsers = User::count($search);
+$users = User::all($limit, $offset, $search);
 $totalPages = ceil($totalUsers / $limit);
-
 ?>
 
 <!DOCTYPE html>
@@ -45,6 +45,14 @@ $totalPages = ceil($totalUsers / $limit);
                 <a href="login.php" class="btn btn-primary">Đăng nhập</a>
             <?php } ?>
         </div>
+
+        <!-- Form tìm kiếm -->
+        <form method="GET" class="mt-3">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo tên" value="<?= htmlspecialchars($search) ?>">
+                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            </div>
+        </form>
 
         <a href="./create.php" class="btn btn-primary mt-3">Create</a>
 
@@ -83,17 +91,17 @@ $totalPages = ceil($totalUsers / $limit);
         <nav>
             <ul class="pagination">
                 <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
+                    <a class="page-link" href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">Previous</a>
                 </li>
 
                 <?php for ($i = 1; $i <= $totalPages; $i++) { ?>
                     <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                        <a class="page-link" href="?page=<?= $i ?>&search=<?= urlencode($search) ?>"><?= $i ?></a>
                     </li>
                 <?php } ?>
 
                 <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
+                    <a class="page-link" href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">Next</a>
                 </li>
             </ul>
         </nav>

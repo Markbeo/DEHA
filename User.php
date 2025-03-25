@@ -14,10 +14,17 @@ class User
             $data['search'] = "%$search%";
         }
 
-        // Ép kiểu số nguyên và truyền trực tiếp vào SQL
-        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+        $sql .= " LIMIT :limit OFFSET :offset";
+        $stmt = DB::getConnection()->prepare($sql);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
 
-        return DB::execute($sql, $data);
+        if (!empty($search)) {
+            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     static public function count($search = "")
@@ -30,8 +37,15 @@ class User
             $data['search'] = "%$search%";
         }
 
-        $result = DB::execute($sql, $data);
-        return $result[0]['total'] ?? 0;
+        $stmt = DB::getConnection()->prepare($sql);
+
+        if (!empty($search)) {
+            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['total'] ?? 0;
     }
 
     static public function create($dataCreate)
@@ -63,8 +77,6 @@ class User
     {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         return self::create(['name' => $name, 'email' => $email, 'password' => $hashedPassword]);
-        echo "Mật khẩu nhập: $password <br>";
-        echo "Mật khẩu hash: $hashedPassword <br>";
     }
 
     static public function login($name, $password)
@@ -75,24 +87,13 @@ class User
         if (count($users) > 0) {
             $user = $users[0];
 
-            // 🛠 DEBUG - Xem mật khẩu thực tế trong DB
-            echo "🔍 Mật khẩu nhập vào: $password <br>";
-            echo "🔍 Mật khẩu hash trong DB: " . $user['password'] . "<br>";
-
             if (password_verify($password, $user['password'])) {
-                echo "✅ Mật khẩu khớp!";
                 $_SESSION['user'] = $user;
                 return true;
-            } else {
-                echo "❌ Mật khẩu không khớp!";
             }
-        } else {
-            echo "❌ Không tìm thấy user!";
         }
         return false;
     }
-
-
 
     static public function logout()
     {
