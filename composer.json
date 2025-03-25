@@ -1,5 +1,8 @@
 {
-  "name": "nguyentungnam/crud-user",
-  "description": "My project",
-  "require": {}
+  "name": "your-vendor/your-project",
+  "description": "Your project description",
+  "require": {
+    "php": "^7.4|^8.0"
+  },
+  "license": "proprietary"
 }
