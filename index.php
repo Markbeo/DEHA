@@ -76,7 +76,12 @@ $totalPages = ceil($totalUsers / $limit);
                                 <td>
                                     <a href="./show.php?id=<?= $user['id'] ?>" class="btn btn-info">Show</a>
                                     <a href="./edit.php?id=<?= $user['id'] ?>" class="btn btn-warning">Edit</a>
-                                    <a href="./delete.php?id=<?= $user['id'] ?>" class="btn btn-danger">Delete</a>
+                                    <form action="delete.php" method="POST" style="display:inline;">
+                                        <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này?');">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -106,6 +111,13 @@ $totalPages = ceil($totalUsers / $limit);
             </ul>
         </nav>
     </div>
+    <?php if (isset($_SESSION['message'])) { ?>
+        <div class="alert alert-info">
+            <?= $_SESSION['message'] ?>
+        </div>
+        <?php unset($_SESSION['message']); ?>
+    <?php } ?>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

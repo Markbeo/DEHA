@@ -1,17 +1,20 @@
 <?php
-session_start(); // Cần khởi động session
+session_start();
 include_once './User.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['id'])) {
     $id = $_POST['id'];
 
-    User::destroy($id);
+    $deleted = User::destroy($id); // Kiểm tra số hàng bị ảnh hưởng
 
-    $_SESSION['message'] = "Delete success";
-    header("Location: index.php"); // Chuyển hướng về trang danh sách
-    exit();
+    if ($deleted) {
+        $_SESSION['message'] = "Xóa thành công!";
+    } else {
+        $_SESSION['message'] = "Không tìm thấy user hoặc xóa thất bại!";
+    }
 } else {
-    $_SESSION['message'] = "User not found";
-    header("Location: index.php");
-    exit();
+    $_SESSION['message'] = "Yêu cầu không hợp lệ!";
 }
+
+header("Location: index.php");
+exit();

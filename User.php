@@ -70,9 +70,11 @@ class User
     static public function destroy($id)
     {
         $sql = "DELETE FROM users WHERE id = :id";
-        return DB::execute($sql, ['id' => $id]);
-    }
+        $statement = DB::getConnection()->prepare($sql);
+        $statement->execute(['id' => $id]);
 
+        return $statement->rowCount(); // Trả về số bản ghi bị ảnh hưởng
+    }
     static public function register($name, $email, $password)
     {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
